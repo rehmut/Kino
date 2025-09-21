@@ -1,0 +1,61 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suggest a Movie - Home Cinema</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <h1>Suggest a Movie</h1>
+    </header>
+    <main>
+        <form id="suggestion-form">
+            <label for="movie-search">Search for a movie:</label>
+            <input type="text" id="movie-search" name="movie-search">
+            <button type="submit">Search</button>
+        </form>
+        <div id="suggestion-results">
+            <!-- Search results will be displayed here -->
+        </div>
+    </main>
+    <script>
+        document.getElementById('suggestion-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const query = document.getElementById('movie-search').value;
+            fetch(`/api/suggest?query=${query}`)
+                .then(response => response.json())
+                .then(data => {
+                    const resultsContainer = document.getElementById('suggestion-results');
+                    resultsContainer.innerHTML = '';
+                    data.forEach(movie => {
+                        const movieElement = document.createElement('div');
+                        movieElement.innerHTML = `
+                            <h3>${movie.title}</h3>
+                            <button onclick="suggestMovie('${movie.title}')">Suggest</button>
+                        `;
+                        resultsContainer.appendChild(movieElement);
+                    });
+                });
+        });
+
+        function suggestMovie(title) {
+            fetch('/api/suggest', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ title })
+            }).then(response => {
+                if (response.ok) {
+                    alert('Suggestion submitted!');
+                } else {
+                    alert('Error submitting suggestion.');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
